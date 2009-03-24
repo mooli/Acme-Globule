@@ -112,9 +112,6 @@ glob() within an eval() will probably not do what you expect.
 
 =head1 SEE ALSO
 
-Acme::Range and List::Maker, although these are somewhat broken because they
-replace glob() globally.
-
 Acme::Globule::*, the plugins.
 
 =head1 AUTHOR

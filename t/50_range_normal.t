@@ -4,7 +4,6 @@ use strict;
 
 # Test "sane" usage
 
-#use Test::More tests => 10;
 require Test::More;
 
 use Acme::Globule qw( Range );
@@ -39,6 +38,9 @@ my @tests = (
              '1,1..5' => [ 1 ],
              '2,1..5' => [ ],
              '5..1,2' => [ ],
+
+             # tests that an invalid range pattern passes through
+             '1...1' => [ '1...1' ],
             );
 
 Test::More->import(tests => @tests/2);

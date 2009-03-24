@@ -1,6 +1,6 @@
 package Acme::Globule::Range;
 
-use Regexp::Common; #FIXME: don't forget to add to prerequisites
+use Regexp::Common;
 my $num = $RE{num}{int};
 
 sub _range($$$) {
@@ -96,10 +96,12 @@ Any other string will fall through to the next plugin.
 
 =head1 BUGS
 
+The syntax is rather rigid.
+
 =head1 SEE ALSO
 
-Acme::Range and List::Maker, although these are somewhat broken because they
-replace glob() globally.
+List::Maker which supports a wider range (*groan*) of syntax but affects
+glob() globally.
 
 =head1 AUTHOR
 
