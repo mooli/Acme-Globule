@@ -4,9 +4,9 @@ use strict;
 
 use vars qw( $VERSION );
 
-# $Id: Makefile.PL 104 2008-02-28 11:54:53Z abuse $
+# $Id: Makefile.PL 120 2008-03-03 00:35:57Z abuse $
 $VERSION = do {
-  my @r=(q$Revision: 104 $=~/\d+/g); sprintf "%d."."%03d"x$#r,@r
+  my @r=(q$Revision: 120 $=~/\d+/g); sprintf "%d."."%03d"x$#r,@r
 };
 
 use ExtUtils::MakeMaker;
@@ -17,7 +17,7 @@ warn "Note: ExtUtils::MakeMaker::Coverage not available, can't 'make testcover'\
 WriteMakefile(
               ABSTRACT => 'Extensible package-local way to override glob()',
 	      NAME     => 'Acme::Globule',
-	      VERSION  => '0.002',
+	      VERSION  => '0.003',
 
               PREREQ_PM => {
                             # We wedge ourselves into File::Glob, which is

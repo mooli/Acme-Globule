@@ -46,5 +46,5 @@ my @tests = (
 Test::More->import(tests => @tests/2);
 
 while(my ($test, $expected) = splice @tests, 0, 2) {
-  is_deeply( [eval "<$test>"], $expected );
+  is_deeply( [eval "<$test>"], $expected, "$test worked" );
 }
