@@ -1,0 +1,12 @@
+--- #YAML:1.0
+name:                Acme-Globule
+version:             0.001
+abstract:            Extensible package-local way to override glob()
+license:             ~
+generated_by:        ExtUtils::MakeMaker version 6.36
+distribution_type:   module
+requires:     
+    Regexp::Common:                
+meta-spec:
+    url:     http://module-build.sourceforge.net/META-spec-v1.2.html
+    version: 1.2
