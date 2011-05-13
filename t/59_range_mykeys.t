@@ -9,14 +9,14 @@ use Test::More tests => 6;
 use Acme::Globule qw( Range );
 
 sub my_keys(\%) {
-  my @hash = %{ $_[0] };
-  return @hash[ glob("0,2..$#hash") ];
+    my @hash = %{ $_[0] };
+    return @hash[ glob("0,2..$#hash") ];
 }
 
- sub my_values(\%) {
-   my @hash = %{ $_[0] };
-  return @hash[ glob("1,3..$#hash") ];
- }
+sub my_values(\%) {
+    my @hash = %{ $_[0] };
+    return @hash[ glob("1,3..$#hash") ];
+}
 
 my %hash = ( 1..20 );
 

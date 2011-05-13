@@ -1,4 +1,5 @@
 package Acme::Globule;
+# ABSTRACT: Extensible package-local way to override glob()
 use warnings;
 use strict;
 
@@ -6,6 +7,8 @@ use strict;
 # a wrapper
 use File::Glob qw( csh_glob );
 my $csh_glob = \&csh_glob;
+
+use Module::Load;
 
 # This is a hash mapping packages that use us to the Globule plugins they
 # requested.
@@ -16,50 +19,45 @@ my %clients;
 my %plugins;
 
 sub import {
-  my($self, @plugins) = @_;
-  my($importer) = caller;
+    my($self, @plugins) = @_;
+    my($importer) = caller;
 
-  foreach my $plugin (@plugins) {
-    unless(defined $plugins{$plugin}) {
-      my $pkgname = __PACKAGE__."::$plugin";
-      eval "require $pkgname";
-      die $@ if $@;
-      $plugins{$plugin} = $pkgname;
+    foreach my $plugin (@plugins) {
+        unless (defined $plugins{$plugin}) {
+            my $pkgname = __PACKAGE__."::$plugin";
+            load $pkgname;
+            $plugins{$plugin} = $pkgname;
+        }
     }
-  }
 
-  $clients{$importer} =  \@plugins;
+    $clients{$importer} =  \@plugins;
 }
 
 sub _new_csh_glob {
-  my($pattern) = @_;
-  my($caller) = caller; # contains package of caller, or (eval) etc, but
-			# will match an entry in %clients for any package
-			# that imported us
-  if(my $client = $clients{$caller}) {
-    # The caller imported us, so we work through the plugins they requested
-    foreach my $plugin (@$client) {
-      # Try the pattern against each plugin in turn, until one returns a
-      # true value. This is assumed to be an arrayref that contains the
-      # result of the glob
-      my $result = $plugins{$plugin}->globule($pattern);
-      return @$result if $result;
+    my($pattern) = @_;
+    my($caller) = caller;  # contains package of caller, or (eval) etc, but
+    # will match an entry in %clients for any package
+    # that imported us
+    if (my $client = $clients{$caller}) {
+        # The caller imported us, so we work through the plugins they requested
+        foreach my $plugin (@$client) {
+            # Try the pattern against each plugin in turn, until one returns a
+            # true value. This is assumed to be an arrayref that contains the
+            # result of the glob
+            my $result = $plugins{$plugin}->globule($pattern);
+            return @$result if $result;
+        }
     }
-  }
-  # Since no plugins matched (or the caller didn't import us), we fall
-  # through to the original glob function
-  goto &$csh_glob;
+    # Since no plugins matched (or the caller didn't import us), we fall
+    # through to the original glob function
+    goto &$csh_glob;
 }
 
-no warnings; # we don't want "subroutine redefined" diagnostics
+no warnings;              # we don't want "subroutine redefined" diagnostics
 *File::Glob::csh_glob = \&_new_csh_glob;
 *CORE::GLOBAL::glob = \&File::Glob::csh_glob;
 
 1;
-
-=head1 NAME
-
-Acme::Globule - Extensible package-local way to override glob()
 
 =head1 SYNOPSIS
 
@@ -105,7 +103,8 @@ matches, or nothing if it wishes to decline and let the next plugin try it.
 Any code that uses this module is perverse and therefore contains at least
 one bug.
 
-Using this module anywhere in a program will cause all uses of glob() to
+This module globally hooks both File::Glob::csh_glob CORE::GLOBAL::glob, and
+so using this module anywhere in a program will cause all uses of glob() to
 suffer a slight performance hit even in other modules which do not use it.
 
 glob() within an eval() will probably not do what you expect.
@@ -113,22 +112,6 @@ glob() within an eval() will probably not do what you expect.
 =head1 SEE ALSO
 
 Acme::Globule::*, the plugins.
-
-=head1 AUTHOR
-
-All code and documentation by Peter Corlett <abuse@cabal.org.uk>.
-
-=head1 COPYRIGHT
-
-Copyright (C) 2008 Peter Corlett <abuse@cabal.org.uk>. All rights
-reserved.
-
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
-
-=head1 SUPPORT / WARRANTY
-
-This is free software. IT COMES WITHOUT WARRANTY OF ANY KIND.
 
 =cut
 

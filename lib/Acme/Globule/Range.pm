@@ -1,51 +1,50 @@
 package Acme::Globule::Range;
-
+# ABSTRACT: Alternative range operator
 use Regexp::Common;
+use warnings;
+use strict;
+
 my $num = $RE{num}{int};
 
-sub _range($$$) {
-  my($first, $last, $step) = @_;
-  #warn "$first..$last (step $step)\n";
-  my @range;
-  if($step > 0) {
-    while($first <= $last) {
-      push @range, $first;
-      $first += $step;
+sub _range {
+    my($first, $last, $step) = @_;
+    #warn "$first..$last (step $step)\n";
+    my @range;
+    if ($step > 0) {
+        while ($first <= $last) {
+            push @range, $first;
+            $first += $step;
+        }
+    } elsif ($step < 0) {
+        while ($first >= $last) {
+            push @range, $first;
+            $first += $step;
+        }
+    } else {
+        return [ $first ];
     }
-  } elsif($step < 0) {
-    while($first >= $last) {
-      push @range, $first;
-      $first += $step;
-    }
-  } else {
-    return [ $first ];
-  }
-  return \@range;
+    return \@range;
 }
 
 sub globule {
-  my($self, $pattern) = @_;
-  local $_ = $pattern;
-  if(/^($num)\.\.($num)$/) {
-    if($1 < $2) {
-      return _range $1, $2, 1;
-    } elsif ($1 > $2) {
-      return _range $1, $2, -1;
+    my($self, $pattern) = @_;
+    local $_ = $pattern;
+    if (/^($num)\.\.($num)$/) {
+        if ($1 < $2) {
+            return _range($1, $2, 1);
+        } elsif ($1 > $2) {
+            return _range($1, $2, -1);
+        } else {
+            return [ $1 ];
+        }
+    } elsif (/^($num),($num)\.\.($num)$/) {
+        return _range($1, $3, $2-$1);
+    } elsif (/^($num)\.\.($num),($num)$/) {
+        return _range($1, $3, $3-$2);
     } else {
-      return [ $1 ];
+        return;
     }
-  } elsif(/^($num),($num)\.\.($num)$/) {
-    return _range $1, $3, $2-$1;
-  } elsif(/^($num)\.\.($num),($num)$/) {
-    return _range $1, $3, $3-$2;
-  } else {
-    return;
-  }
 }
-
-=head1 NAME
-
-Acme::Globule::Range - alternative range operator
 
 =head1 SYNOPSIS
 
@@ -94,6 +93,13 @@ value is Y. Thus C<E<lt>1..7,9E<gt>> is C<(1, 3, 5, 7, 9)>.
 
 Any other string will fall through to the next plugin.
 
+METHODS
+
+=head2 globule
+
+The implementation of the range operator. You should never need to call this
+directly.
+
 =head1 BUGS
 
 The syntax is rather rigid.
@@ -102,22 +108,6 @@ The syntax is rather rigid.
 
 List::Maker which supports a wider range (*groan*) of syntax but affects
 glob() globally.
-
-=head1 AUTHOR
-
-All code and documentation by Peter Corlett <abuse@cabal.org.uk>.
-
-=head1 COPYRIGHT
-
-Copyright (C) 2008 Peter Corlett <abuse@cabal.org.uk>. All rights
-reserved.
-
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
-
-=head1 SUPPORT / WARRANTY
-
-This is free software. IT COMES WITHOUT WARRANTY OF ANY KIND.
 
 =cut
 
